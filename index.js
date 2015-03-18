@@ -69,7 +69,7 @@ var getCatalog = function(locale, localeDirs) {
   })
 };
 
-var translate = function(file, opts) {
+var i18n = function(file, opts) {
   var locale = opts.locale;
   var localeDirs = opts.localeDirs;
   var catalog = getCatalog(locale, localeDirs);
@@ -77,7 +77,7 @@ var translate = function(file, opts) {
   return filterInterpolator(file, catalog, opts);
 };
 
-translate.fast = function(fastOpts) {
+i18n.fast = function(fastOpts) {
   var locale = fastOpts.locale;
   var localeDirs = fastOpts.localeDirs;
   var catalog = getCatalog(locale, localeDirs);
@@ -91,4 +91,4 @@ translate.fast = function(fastOpts) {
   };
 };
 
-module.exports = translate;
+module.exports = i18n;
