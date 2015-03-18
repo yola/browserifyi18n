@@ -20,7 +20,7 @@ describe('browserify i18n', function() {
 
     it('bundles translated code handlebars files', function(done) {
       browserifyObj.bundle(function(err, src) {
-        src.toString().should.contain('module.exports = "Hola";');
+        src.toString().should.contain('module.exports = "Hola\\n";');
         done(err);
       });
     });
@@ -33,7 +33,7 @@ describe('browserify i18n', function() {
 
     it('bundles translated handlebars files', function(done) {
       browserifyObj.bundle(function(err, src) {
-        src.toString().should.contain('module.exports = "Hola";');
+        src.toString().should.contain('module.exports = "Hola\\n";');
         done(err);
       });
     });
