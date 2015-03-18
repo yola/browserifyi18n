@@ -1,0 +1,37 @@
+{
+  "name": "browserify-i18n",
+  "version": "0.0.0",
+  "description": "Browserify transform for internationalizing tagged strings",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yola/browserify-i18n.git"
+  },
+  "keywords": [
+    "browserify",
+    "i18n",
+    "internationalization",
+    "translation"
+  ],
+  "author": "Yola Engineering <engineers@yola.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yola/browserify-i18n/issues"
+  },
+  "homepage": "https://github.com/yola/browserify-i18n",
+  "devDependencies": {
+    "browserify": "^9.0.3",
+    "chai": "^2.1.2",
+    "mocha": "^2.2.1"
+  },
+  "dependencies": {
+    "gettext-parser": "^1.1.0",
+    "handlebars": "^3.0.0",
+    "jsesc": "^0.5.0",
+    "lodash": "^3.5.0",
+    "through2": "^0.6.3"
+  }
+}
