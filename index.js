@@ -8,23 +8,28 @@ var gettextParser = require('gettext-parser');
 var Handlebars = require('handlebars');
 var jsesc = require('jsesc');
 
-var replaceText = function(chunk, enc, callback) {
-  var template = Handlebars.compile(chunk.toString());
+_.templateSettings.interpolate = /{{trans\s"([\s\S]+?)"}}/g;
+
+var replaceText = function(catalog, chunk, enc, callback) {
+  var template = _.template(chunk.toString());
   var chunkString = '';
 
-  chunkString += 'module.exports = "';
-  chunkString += jsesc(template(), {quotes: 'double'});
-  chunkString += '";';
+  chunkString += 'module.exports = ';
+  chunkString += jsesc(template(catalog), {
+    quotes: 'double',
+    wrap: true
+  });
+  chunkString += ';';
 
   callback(null, chunkString);
 };
 
-var filterHandlebars = function(file) {
+var filterHandlebars = function(file, catalog) {
   if(file.split('.').pop() !== 'hbs') {
     return through2();
   }
 
-  return through2(replaceText);
+  return through2(_.partial(replaceText, catalog));
 };
 
 var setupHandlebarsHelper = function(locale, localeDirs) {
@@ -49,31 +54,28 @@ var setupHandlebarsHelper = function(locale, localeDirs) {
 
   var catalog = catalogParser('en', localeDirs);
 
-  Handlebars.registerHelper('trans', function(text) {
-    var msg = catalog[text];
-
-    return (msg.msgstr && msg.msgstr[0]) || text;
-  });
+  return _.transform(catalog, function(acc, msgObject, msgKey) {
+    var msgId = msgObject.msgid;
+    var msg = (msgObject.msgstr && msgObject.msgstr[0]) || msgId;
+    acc[msgId] = msg;
+  })
 };
 
 var translate = function(file, opts) {
   var locale = opts.locale;
   var localeDirs = opts.localeDirs;
+  var catalog = setupHandlebarsHelper(locale, localeDirs);
 
-  // build catalog for locale
-  setupHandlebarsHelper(locale, localeDirs);
-
-  return filterHandlebars(file);
+  return filterHandlebars(file, catalog);
 };
 
 translate.fast = function(fastOpts) {
   var locale = fastOpts.locale;
   var localeDirs = fastOpts.localeDirs;
-
-  setupHandlebarsHelper(locale, localeDirs);
+  var catalog = setupHandlebarsHelper(locale, localeDirs);
 
   return function(file, opts) {
-    return filterHandlebars(file);
+    return filterHandlebars(file, catalog);
   };
 };
 
