@@ -77,7 +77,11 @@ translate.fast = function(fastOpts) {
   var catalog = getCatalog(locale, localeDirs);
 
   return function(file, opts) {
-    return filterHandlebars(file, catalog, opts);
+    var mergedOpts = {};
+
+    _.extend(mergedOpts, opts, fastOpts)
+
+    return filterHandlebars(file, catalog, mergedOpts);
   };
 };
 
