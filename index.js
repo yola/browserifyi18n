@@ -5,8 +5,15 @@ var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
 var gettextParser = require('gettext-parser');
-var Handlebars = require('handlebars');
 
+// Publish a Node.js require() handler for .trs and .hbs files
+if (typeof require !== 'undefined' && require.extensions) {
+  var extension = function(module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+  };
+  require.extensions['.handlebars'] = extension;
+  require.extensions['.hbs'] = extension;
+}
 
 var replaceText = function(catalog, opts, chunk, enc, callback) {
   var template = _.template(chunk.toString(), {
@@ -26,7 +33,7 @@ var replaceText = function(catalog, opts, chunk, enc, callback) {
   callback(null, chunkString);
 };
 
-var filterHandlebars = function(file, catalog, opts) {
+var filterInterpolator = function(file, catalog, opts) {
   if(file.split('.').pop() !== 'hbs') {
     return through2();
   }
@@ -68,7 +75,7 @@ var translate = function(file, opts) {
   var localeDirs = opts.localeDirs;
   var catalog = getCatalog(locale, localeDirs);
 
-  return filterHandlebars(file, catalog, opts);
+  return filterInterpolator(file, catalog, opts);
 };
 
 translate.fast = function(fastOpts) {
@@ -81,7 +88,7 @@ translate.fast = function(fastOpts) {
 
     _.extend(mergedOpts, opts, fastOpts)
 
-    return filterHandlebars(file, catalog, mergedOpts);
+    return filterInterpolator(file, catalog, mergedOpts);
   };
 };
 
