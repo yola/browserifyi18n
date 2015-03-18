@@ -85,7 +85,7 @@ i18n.fast = function(fastOpts) {
   return function(file, opts) {
     var mergedOpts = {};
 
-    _.extend(mergedOpts, opts, fastOpts)
+    _.extend(mergedOpts, opts, fastOpts);
 
     return filterInterpolator(file, catalog, mergedOpts);
   };
