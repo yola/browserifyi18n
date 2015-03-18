@@ -48,3 +48,9 @@ browserify('./source/file.js')
 
 The optimized task is much faster because it only parses `.po` files once,
 instead of once for every browserified module.
+
+## Test
+
+```sh
+$ mocha
+```
