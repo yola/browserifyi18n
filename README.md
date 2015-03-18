@@ -13,7 +13,7 @@ $ npm install https://github.com/yola/browserify-i18n.git
 For standard, non-optimized usage, do:
 
 ```javascript
-var browserify = require('browserif');
+var browserify = require('browserify');
 var i18n = require('browserify-i18n');
 var opts = {
   locale: 'en',                         // The locale code to be used
