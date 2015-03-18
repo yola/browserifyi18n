@@ -51,12 +51,13 @@ instead of once for every browserified module.
 
 To specify a custom interpolator do:
 
-```
+```javascript
 var opts = {
   locale: 'en',
   localeDirs: ['./path/to/locale/dir/'],
-  interpolate: \{tr\s"([\s\S]+?)"}\g
+  interpolate: \{tr\s"([\s\S]+?)"}\g     // Custom interpolation RegExp
 };
+
 browserify('./source/file.js')
   .transform(i18n, opts)
   .bundle()
