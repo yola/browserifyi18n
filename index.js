@@ -6,20 +6,22 @@ var fs = require('fs');
 var through2 = require('through2');
 var gettextParser = require('gettext-parser');
 var Handlebars = require('handlebars');
-var jsesc = require('jsesc');
+
 
 _.templateSettings.interpolate = /{{trans\s"([\s\S]+?)"}}/g;
 
 var replaceText = function(catalog, chunk, enc, callback) {
   var template = _.template(chunk.toString());
+
+  var translatedString = template(catalog)
+    .replace(/\n/g, '\\n')
+    .replace(/"/g, '\"');
+
   var chunkString = '';
 
-  chunkString += 'module.exports = ';
-  chunkString += jsesc(template(catalog), {
-    quotes: 'double',
-    wrap: true
-  });
-  chunkString += ';';
+  chunkString += 'module.exports = "';
+  chunkString += translatedString;
+  chunkString += '";';
 
   callback(null, chunkString);
 };
