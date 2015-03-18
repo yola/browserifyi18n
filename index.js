@@ -66,7 +66,7 @@ var getCatalog = function(locale, localeDirs) {
     var msgId = msgObject.msgid;
     var msg = (msgObject.msgstr && msgObject.msgstr[0]) || msgId;
     acc[msgId] = msg;
-  })
+  });
 };
 
 var i18n = function(file, opts) {
