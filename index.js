@@ -10,6 +10,7 @@ var gettextParser = require('gettext-parser');
 var extension = function(module, filename) {
   module.exports = fs.readFileSync(filename, 'utf8');
 };
+
 require.extensions['.handlebars'] = extension;
 require.extensions['.hbs'] = extension;
 
