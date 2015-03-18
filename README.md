@@ -49,6 +49,13 @@ browserify('./source/file.js')
 The optimized task is much faster because it only parses `.po` files once,
 instead of once for every browserified module.
 
+To specify a custom interpolator do:
+
+```
+browserify('./source/file.js')
+  .transform(i18n, {interpolate: \{tr\s"([\s\S]+?)"}\g})
+```
+
 ## Test
 
 ```sh
