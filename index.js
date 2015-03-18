@@ -6,14 +6,12 @@ var fs = require('fs');
 var through2 = require('through2');
 var gettextParser = require('gettext-parser');
 
-// Publish a Node.js require() handler for .trs and .hbs files
-if (typeof require !== 'undefined' && require.extensions) {
-  var extension = function(module, filename) {
-    module.exports = fs.readFileSync(filename, 'utf8');
-  };
-  require.extensions['.handlebars'] = extension;
-  require.extensions['.hbs'] = extension;
-}
+// Publish a Node.js require() handler for .handlebars and .hbs files
+var extension = function(module, filename) {
+  module.exports = fs.readFileSync(filename, 'utf8');
+};
+require.extensions['.handlebars'] = extension;
+require.extensions['.hbs'] = extension;
 
 var replaceText = function(catalog, opts, chunk, enc, callback) {
   var template = _.template(chunk.toString(), {
