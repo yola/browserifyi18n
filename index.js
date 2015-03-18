@@ -34,7 +34,7 @@ var filterHandlebars = function(file, catalog) {
   return through2(_.partial(replaceText, catalog));
 };
 
-var setupHandlebarsHelper = function(locale, localeDirs) {
+var getCatalog = function(locale, localeDirs) {
   var poParser = function(localeDir) {
     var fp = path.join(localeDir, locale, 'LC_MESSAGES', 'messages.po');
     var hasPo = fs.existsSync(fp);
@@ -66,7 +66,7 @@ var setupHandlebarsHelper = function(locale, localeDirs) {
 var translate = function(file, opts) {
   var locale = opts.locale;
   var localeDirs = opts.localeDirs;
-  var catalog = setupHandlebarsHelper(locale, localeDirs);
+  var catalog = getCatalog(locale, localeDirs);
 
   return filterHandlebars(file, catalog);
 };
@@ -74,7 +74,7 @@ var translate = function(file, opts) {
 translate.fast = function(fastOpts) {
   var locale = fastOpts.locale;
   var localeDirs = fastOpts.localeDirs;
-  var catalog = setupHandlebarsHelper(locale, localeDirs);
+  var catalog = getCatalog(locale, localeDirs);
 
   return function(file, opts) {
     return filterHandlebars(file, catalog);
