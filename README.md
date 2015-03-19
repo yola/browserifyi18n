@@ -32,7 +32,7 @@ For optimized usage do:
 var browserify = require('browserif');
 var i18n = require('browserify-i18n');
 var opts = {
-  global: true // Normal browserify transform options
+  // Normal browserify transform options go here
 };
 
 var fastOpts = {
