@@ -54,8 +54,10 @@ var filterInterpolator = function(file, catalog, opts) {
 };
 
 var getCatalog = function(locale, localeDirs) {
-  var poParser = function(localeDir) {
-    var fp = path.join(localeDir, locale, 'LC_MESSAGES', 'messages.po');
+  var poParser = function(localeDir, index, localeDirs, en, filename) {
+    locale = en || locale;
+    var filename = filename || 'messages.po';
+    var fp = path.join(localeDir, locale, 'LC_MESSAGES', filename);
     var hasPo = fs.existsSync(fp);
     var po = hasPo ? fs.readFileSync(fp, {encoding: 'utf8'}) : null;
     var catalog = po ? gettextParser.po.parse(po).translations[''] : {};
@@ -64,11 +66,14 @@ var getCatalog = function(locale, localeDirs) {
   };
 
   var catalogParser = function(defaultLang, localeDirs) {
-    if (locale === defaultLang) {
-      return {};
-    }
+    var jsonPoArray, enPoParser;
 
-    var jsonPoArray = _.map(localeDirs, poParser);
+    if (locale === defaultLang) {
+      enPoParser = _.partialRight(poParser, 'templates', 'messages.pot');
+      jsonPoArray = _.map(localeDirs, enPoParser);
+    } else {
+      jsonPoArray = _.map(localeDirs, poParser);
+    }
 
     return _.reduce(jsonPoArray, _.defaults);
   };
