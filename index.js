@@ -14,19 +14,31 @@ var extension = function(module, filename) {
 require.extensions['.handlebars'] = extension;
 require.extensions['.hbs'] = extension;
 
-var replaceText = function(catalog, opts, chunk, enc, callback) {
-  var template = _.template(chunk.toString(), {
-    interpolate: opts.interpolate || /{{trans\s"([\s\S]+?)"}}/g
-  });
-
-  var translatedString = template(catalog)
+var escapeStr = function(str) {
+  return str
     .replace(/\n/g, '\\n')
     .replace(/"/g, '\\"');
+}
 
-  var chunkString = '';
+var replaceText = function(catalog, opts, chunk, enc, callback) {
+  var template = chunk.toString();
+  var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
+  var chunkString, needle, msgid, translated, match;
+
+  translated = template;
+  match = re.exec(template);
+
+  while (match) {
+    needle = match[0];
+    msgid = match[1] || match[2];
+    translated = translated.replace(needle, catalog[msgid]);
+    match = re.exec(template);
+  }
+
+  translated = escapeStr(translated);
 
   chunkString += 'module.exports = "';
-  chunkString += translatedString;
+  chunkString += translated;
   chunkString += '";';
 
   callback(null, chunkString);
