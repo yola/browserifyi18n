@@ -11,7 +11,7 @@ describe('browserify i18n', function() {
   var options = {
     locale: 'es',
     localeDirs: ['./locale/'],
-    interpolate: /\{tr\s"([\s\S]+?)"}/g
+    interpolate: /\{tr\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}/g
   };
 
   var expectedStringQue = '<span id=\\"what\\">Qué</span>\\n';

@@ -14,19 +14,32 @@ var extension = function(module, filename) {
 require.extensions['.handlebars'] = extension;
 require.extensions['.hbs'] = extension;
 
-var replaceText = function(catalog, opts, chunk, enc, callback) {
-  var template = _.template(chunk.toString(), {
-    interpolate: opts.interpolate || /{{trans\s"([\s\S]+?)"}}/g
-  });
-
-  var translatedString = template(catalog)
+var escapeStr = function(str) {
+  return str
     .replace(/\n/g, '\\n')
     .replace(/"/g, '\\"');
+};
 
-  var chunkString = '';
+var replaceText = function(catalog, opts, chunk, enc, callback) {
+  var template = chunk.toString();
+  var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
+  var chunkString, match, msgid, needle, translated;
 
+  translated = template;
+  match = re.exec(template);
+
+  while (match) {
+    needle = match[0];
+    msgid = match[1] || match[2];
+    translated = translated.replace(needle, catalog[msgid]);
+    match = re.exec(template);
+  }
+
+  translated = escapeStr(translated);
+
+  chunkString = '';
   chunkString += 'module.exports = "';
-  chunkString += translatedString;
+  chunkString += translated;
   chunkString += '";';
 
   callback(null, chunkString);
@@ -41,8 +54,10 @@ var filterInterpolator = function(file, catalog, opts) {
 };
 
 var getCatalog = function(locale, localeDirs) {
-  var poParser = function(localeDir) {
-    var fp = path.join(localeDir, locale, 'LC_MESSAGES', 'messages.po');
+  var poParser = function(localeDir, index, localeDirs, en, filename) {
+    locale = en || locale;
+    filename = filename || 'messages.po';
+    var fp = path.join(localeDir, locale, 'LC_MESSAGES', filename);
     var hasPo = fs.existsSync(fp);
     var po = hasPo ? fs.readFileSync(fp, {encoding: 'utf8'}) : null;
     var catalog = po ? gettextParser.po.parse(po).translations[''] : {};
@@ -51,11 +66,14 @@ var getCatalog = function(locale, localeDirs) {
   };
 
   var catalogParser = function(defaultLang, localeDirs) {
-    if (locale === defaultLang) {
-      return {};
-    }
+    var jsonPoArray, enPoParser;
 
-    var jsonPoArray = _.map(localeDirs, poParser);
+    if (locale === defaultLang) {
+      enPoParser = _.partialRight(poParser, 'templates', 'messages.pot');
+      jsonPoArray = _.map(localeDirs, enPoParser);
+    } else {
+      jsonPoArray = _.map(localeDirs, poParser);
+    }
 
     return _.reduce(jsonPoArray, _.defaults);
   };
