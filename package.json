@@ -1,5 +1,5 @@
 {
-  "name": "browserify-i18n",
+  "name": "browserifyi18n",
   "version": "0.0.0",
   "description": "Browserify transform for internationalizing tagged strings",
   "main": "index.js",

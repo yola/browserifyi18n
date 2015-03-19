@@ -5,7 +5,7 @@ Browserify transform for internationalizing tagged strings
 ## Install
 
 ```
-$ npm install https://github.com/yola/browserify-i18n.git
+$ npm install browserifyi18n
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ For optimized usage do:
 var browserify = require('browserif');
 var i18n = require('browserify-i18n');
 var opts = {
-  global: true // Normal browserify transform options
+  // Normal browserify transform options go here
 };
 
 var fastOpts = {
