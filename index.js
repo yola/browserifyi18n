@@ -23,7 +23,7 @@ var escapeStr = function(str) {
 var replaceText = function(catalog, opts, chunk, enc, callback) {
   var template = chunk.toString();
   var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
-  var chunkString, needle, msgid, translated, match;
+  var chunkString, match, msgid, needle, translated;
 
   translated = template;
   match = re.exec(template);
