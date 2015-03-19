@@ -18,7 +18,7 @@ var escapeStr = function(str) {
   return str
     .replace(/\n/g, '\\n')
     .replace(/"/g, '\\"');
-}
+};
 
 var replaceText = function(catalog, opts, chunk, enc, callback) {
   var template = chunk.toString();
