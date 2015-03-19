@@ -10,38 +10,47 @@ var gettextParser = require('gettext-parser');
 var extension = function(module, filename) {
   module.exports = fs.readFileSync(filename, 'utf8');
 };
-
 require.extensions['.handlebars'] = extension;
 require.extensions['.hbs'] = extension;
 
-var replaceText = function(catalog, opts, chunk, enc, callback) {
-  var template = _.template(chunk.toString(), {
-    interpolate: opts.interpolate || /{{trans\s"([\s\S]+?)"}}/g
-  });
 
-  var translatedString = template(catalog)
-    .replace(/\n/g, '\\n')
-    .replace(/"/g, '\\"');
-
-  var chunkString = '';
-
-  chunkString += 'module.exports = "';
-  chunkString += translatedString;
-  chunkString += '";';
-
-  callback(null, chunkString);
+var addSlash = {
+  '\n': '\\n',
+  '"': '\\"'
 };
 
-var filterInterpolator = function(file, catalog, opts) {
-  if(file.split('.').pop() !== 'hbs') {
-    return through2();
-  }
-
-  return through2(_.partial(replaceText, catalog, opts));
+var escapeMatch = function(match) {
+  return addSlash[match];
 };
 
-var getCatalog = function(locale, localeDirs) {
-  var poParser = function(localeDir) {
+var getTranslator = function(catalog, opts) {
+  var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
+
+  return function(chunk, enc, callback) {
+    var template = chunk.toString();
+    var match, msgid, needle, translated;
+
+    translated = template;
+    match = re.exec(template);
+
+    while (match) {
+      needle = match[0];
+      msgid = match[1] || match[2];
+      translated = translated.replace(needle, catalog[msgid] || msgid);
+      match = re.exec(template);
+    }
+
+    var translatedChunk = translated
+      .replace(/(\n|")/g, escapeMatch);
+
+    var moduleString = 'module.exports = "' + translatedChunk + '";';
+
+    callback(null, moduleString);
+  };
+};
+
+var getJSONCatalog = function(locale, localeDirs) {
+  var catalogDir = function(localeDir) {
     var fp = path.join(localeDir, locale, 'LC_MESSAGES', 'messages.po');
     var hasPo = fs.existsSync(fp);
     var po = hasPo ? fs.readFileSync(fp, {encoding: 'utf8'}) : null;
@@ -50,17 +59,12 @@ var getCatalog = function(locale, localeDirs) {
     return catalog;
   };
 
-  var catalogParser = function(defaultLang, localeDirs) {
-    if (locale === defaultLang) {
-      return {};
-    }
-
-    var jsonPoArray = _.map(localeDirs, poParser);
-
-    return _.reduce(jsonPoArray, _.defaults);
+  var makeMasterCatalog = function(localeDirs) {
+    var catalogs = _.map(localeDirs, catalogDir);
+    return _.reduce(catalogs, _.defaults);
   };
 
-  var catalog = catalogParser('en', localeDirs);
+  var catalog = makeMasterCatalog(localeDirs);
 
   return _.transform(catalog, function(acc, msgObject, msgKey) {
     var msgId = msgObject.msgid;
@@ -69,25 +73,35 @@ var getCatalog = function(locale, localeDirs) {
   });
 };
 
-var i18n = function(file, opts) {
-  var locale = opts.locale;
-  var localeDirs = opts.localeDirs;
-  var catalog = getCatalog(locale, localeDirs);
+var acceptedExtensions = [
+  '.handlebars',
+  '.hbs'
+];
 
-  return filterInterpolator(file, catalog, opts);
+var translatable = function(file) {
+  var ext = path.extname(file);
+  return _.include(acceptedExtensions, ext);
+};
+
+var i18n = function(file, opts) {
+  if(!translatable(file)) {
+    return through2();
+  }
+  var catalog = getJSONCatalog(opts.locale, opts.localeDirs);
+  var translator = getTranslator(catalog, opts);
+  return through2(translator);
 };
 
 i18n.fast = function(fastOpts) {
-  var locale = fastOpts.locale;
-  var localeDirs = fastOpts.localeDirs;
-  var catalog = getCatalog(locale, localeDirs);
+  var catalog = getJSONCatalog(fastOpts.locale, fastOpts.localeDirs);
 
   return function(file, opts) {
-    var mergedOpts = {};
-
-    _.extend(mergedOpts, opts, fastOpts);
-
-    return filterInterpolator(file, catalog, mergedOpts);
+    if(!translatable(file)) {
+      return through2();
+    }
+    var mergedOpts = _.extend({}, opts, fastOpts);
+    var translator = getTranslator(catalog, mergedOpts);
+    return through2(translator);
   };
 };
 
