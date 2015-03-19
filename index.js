@@ -37,6 +37,7 @@ var replaceText = function(catalog, opts, chunk, enc, callback) {
 
   translated = escapeStr(translated);
 
+  chunkString = '';
   chunkString += 'module.exports = "';
   chunkString += translated;
   chunkString += '";';
