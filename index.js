@@ -21,7 +21,7 @@ var replaceText = function(catalog, opts, chunk, enc, callback) {
 
   var translatedString = template(catalog)
     .replace(/\n/g, '\\n')
-    .replace(/"/g, '\"');
+    .replace(/"/g, '\\"');
 
   var chunkString = '';
 
