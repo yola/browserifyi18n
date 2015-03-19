@@ -6,3 +6,6 @@ msgstr ""
 
 msgid "What"
 msgstr "Qué"
+
+msgid "Hello"
+msgstr "Hola"

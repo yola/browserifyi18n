@@ -10,8 +10,12 @@ process.chdir(__dirname);
 describe('browserify i18n', function() {
   var options = {
     locale: 'es',
-    localeDirs: ['./locale/']
+    localeDirs: ['./locale/'],
+    interpolate: /\{tr\s"([\s\S]+?)"}/g
   };
+
+  var expectedStringQue = '<span id=\\"what\\">Qué</span>\\n';
+  var expectedStringHola = '<span class=\\"hello\\">Hola</span>\\n';
 
   describe('standard configuration', function() {
     var browserifyObj = browserify()
@@ -20,8 +24,17 @@ describe('browserify i18n', function() {
 
     it('bundles translated code handlebars files', function(done) {
       browserifyObj.bundle(function(err, src) {
-        src.toString().should.contain('module.exports = "Qué\\n";');
-        done(err);
+        if(src) {
+          src.toString().should.contain(expectedStringQue);
+          src.toString().should.contain(expectedStringHola);
+        }
+
+        if(err) {
+          console.error(err);
+          throw err;
+        }
+
+        done();
       });
     });
   });
@@ -33,8 +46,17 @@ describe('browserify i18n', function() {
 
     it('bundles translated handlebars files', function(done) {
       browserifyObj.bundle(function(err, src) {
-        src.toString().should.contain('module.exports = "Qué\\n";');
-        done(err);
+        if(src) {
+          src.toString().should.contain(expectedStringQue);
+          src.toString().should.contain(expectedStringHola);
+        }
+
+        if(err) {
+          console.error(err);
+          throw err;
+        }
+
+        done();
       });
     });
   });
