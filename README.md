@@ -5,7 +5,7 @@ Browserify transform for internationalizing tagged strings
 ## Install
 
 ```
-$ npm install https://github.com/yola/browserify-i18n.git
+$ npm install browserifyi18n
 ```
 
 ## Usage
