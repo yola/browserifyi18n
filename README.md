@@ -1,4 +1,4 @@
-# browserify-i18n
+# browserifyi18n
 Browserify transform for internationalizing tagged strings
 
 
@@ -14,7 +14,7 @@ For standard, non-optimized usage, do:
 
 ```javascript
 var browserify = require('browserify');
-var i18n = require('browserify-i18n');
+var i18n = require('browserifyi18n');
 var opts = {
   locale: 'en',                         // The locale code to be used
   localeDirs: ['./path/to/locale/dir/'] // Array of paths to locale .po files
@@ -30,7 +30,7 @@ For optimized usage do:
 
 ```javascript
 var browserify = require('browserif');
-var i18n = require('browserify-i18n');
+var i18n = require('browserifyi18n');
 var opts = {
   // Normal browserify transform options go here
 };
