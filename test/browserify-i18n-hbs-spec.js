@@ -1,8 +1,7 @@
 var chai = require('chai');
 var browserify = require('browserify');
-var through2 = require('through2');
 var i18n = require('../index');
-var path = require('path');
+
 
 chai.should();
 process.chdir(__dirname);
