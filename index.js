@@ -5,6 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
 var gettextParser = require('gettext-parser');
+var javascriptTranslator = require('./lib/javascript-translator');
 
 // Publish a Node.js require() handler for .handlebars and .hbs files
 var extension = function(module, filename) {
@@ -13,17 +14,15 @@ var extension = function(module, filename) {
 require.extensions['.handlebars'] = extension;
 require.extensions['.hbs'] = extension;
 
+var getTranslator = function(catalog, opts, ext) {
+  if (ext === '.js') {
+    return function(chunk, enc, callback) {
+      var translated = javascriptTranslator(chunk.toString(), catalog);
 
-var addSlash = {
-  '\n': '\\n',
-  '"': '\\"'
-};
+      callback(null, translated);
+    };
+  }
 
-var escapeMatch = function(match) {
-  return addSlash[match];
-};
-
-var getTranslator = function(catalog, opts) {
   var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
 
   return function(chunk, enc, callback) {
@@ -40,12 +39,7 @@ var getTranslator = function(catalog, opts) {
       match = re.exec(template);
     }
 
-    var translatedChunk = translated
-      .replace(/(\n|")/g, escapeMatch);
-
-    var moduleString = 'module.exports = "' + translatedChunk + '";';
-
-    callback(null, moduleString);
+    callback(null, translated);
   };
 };
 
@@ -75,7 +69,8 @@ var getJSONCatalog = function(locale, localeDirs) {
 
 var acceptedExtensions = [
   '.handlebars',
-  '.hbs'
+  '.hbs',
+  '.js'
 ];
 
 var translatable = function(file) {
@@ -87,8 +82,11 @@ var i18n = function(file, opts) {
   if(!translatable(file)) {
     return through2();
   }
+
+  var extName = path.extname(file);
   var catalog = getJSONCatalog(opts.locale, opts.localeDirs);
-  var translator = getTranslator(catalog, opts);
+  var translator = getTranslator(catalog, opts, extName);
+
   return through2(translator);
 };
 
@@ -96,11 +94,15 @@ i18n.fast = function(fastOpts) {
   var catalog = getJSONCatalog(fastOpts.locale, fastOpts.localeDirs);
 
   return function(file, opts) {
+
     if(!translatable(file)) {
       return through2();
     }
+
+    var extName = path.extname(file);
     var mergedOpts = _.extend({}, opts, fastOpts);
-    var translator = getTranslator(catalog, mergedOpts);
+    var translator = getTranslator(catalog, mergedOpts, extName);
+
     return through2(translator);
   };
 };
