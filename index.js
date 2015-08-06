@@ -69,6 +69,7 @@ var translatable = function(file) {
 };
 
 var i18n = function(file, opts) {
+
   if(!translatable(file)) {
     return through2();
   }

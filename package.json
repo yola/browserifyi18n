@@ -33,10 +33,5 @@
     "hbsfy": "^2.2.1",
     "lodash": "^3.5.0",
     "through2": "^0.6.3"
-  },
-  "browserify": {
-    "transform": [
-      "hbsfy"
-    ]
   }
 }

@@ -1,6 +1,7 @@
 var chai = require('chai');
 var browserify = require('browserify');
 var i18n = require('../index');
+var hbsfy = require('hbsfy');
 
 
 chai.should();
@@ -19,6 +20,7 @@ describe('browserify i18n handlebars translation', function() {
   describe('standard configuration', function() {
     var browserifyObj = browserify()
       .transform(i18n, options)
+      .transform(hbsfy)
       .add('./fake-app.js');
 
     it('translates tagged strings', function(done) {
@@ -41,6 +43,7 @@ describe('browserify i18n handlebars translation', function() {
   describe('optimized configuration', function() {
     var browserifyObj = browserify()
       .transform(i18n.fast(options))
+      .transform(hbsfy)
       .add('./fake-app.js');
 
     it('translates tagged strings', function(done) {
