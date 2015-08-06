@@ -5,29 +5,39 @@ var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
 var gettextParser = require('gettext-parser');
-var handlebarsTranslator = require('./lib/handlebars-translator');
-var javascriptTranslator = require('./lib/javascript-translator');
+var hbsTransFn = require('./lib/handlebars-translator');
+var jsTransFn = require('./lib/javascript-translator');
 
 // Publish a Node.js require() handler for .handlebars and .hbs files
 var extension = function(module, filename) {
   module.exports = fs.readFileSync(filename, 'utf8');
 };
+
 require.extensions['.handlebars'] = extension;
 require.extensions['.hbs'] = extension;
 
+var hbsTransObj = {
+  fn: hbsTransFn,
+  re: /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g,
+  interpolateOptName: 'interpolateHbs'
+};
+
+var translators = {
+  '.handlebars': hbsTransObj,
+  '.hbs': hbsTransObj,
+  '.js': {
+    fn: jsTransFn,
+    re: /trans\(\s*(?:"([^"]+)"|\'([^\']+)\')\s*\)\s*/g,
+    interpolateOptName: 'interpolateJs'
+  },
+};
+
 var getTranslator = function(catalog, opts, ext) {
-  if (ext === '.js') {
-    return function(chunk, enc, callback) {
-      var translated = javascriptTranslator(chunk.toString(), catalog);
-
-      callback(null, translated);
-    };
-  }
-
-  var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
+  var transObj = translators[ext];
+  var re = opts[transObj.interpolateOptName] || transObj.re;
 
   return function(chunk, enc, callback) {
-    var translated = handlebarsTranslator(chunk.toString(), catalog, re);
+    var translated = transObj.fn(chunk.toString(), catalog, re);
 
     callback(null, translated);
   };

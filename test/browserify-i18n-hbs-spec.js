@@ -11,7 +11,7 @@ describe('browserify i18n handlebars translation', function() {
   var options = {
     locale: 'es',
     localeDirs: ['./locale/'],
-    interpolate: /\{tr\s"([\s\S]+?)"}/g
+    interpolateHbs: /\{tr\s"([\s\S]+?)"}/g
   };
 
   var expectedStringQue = '<span id=\\"what\\">Qué</span>\\n';
