@@ -1,3 +1,5 @@
+'use strict';
+
 var chai = require('chai');
 var browserify = require('browserify');
 var i18n = require('../index');
