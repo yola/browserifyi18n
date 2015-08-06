@@ -5,47 +5,41 @@ var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
 var gettextParser = require('gettext-parser');
+var hbsTransFn = require('./lib/handlebars-translator');
+var jsTransFn = require('./lib/javascript-translator');
 
 // Publish a Node.js require() handler for .handlebars and .hbs files
 var extension = function(module, filename) {
   module.exports = fs.readFileSync(filename, 'utf8');
 };
+
 require.extensions['.handlebars'] = extension;
 require.extensions['.hbs'] = extension;
 
-
-var addSlash = {
-  '\n': '\\n',
-  '"': '\\"'
+var hbsTransObj = {
+  fn: hbsTransFn,
+  re: /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g,
+  interpolateOptName: 'interpolateHbs'
 };
 
-var escapeMatch = function(match) {
-  return addSlash[match];
+var translators = {
+  '.handlebars': hbsTransObj,
+  '.hbs': hbsTransObj,
+  '.js': {
+    fn: jsTransFn,
+    re: /trans\(\s*(?:"([^"]+)"|\'([^\']+)\')\s*\)\s*/g,
+    interpolateOptName: 'interpolateJs'
+  },
 };
 
-var getTranslator = function(catalog, opts) {
-  var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
+var getTranslator = function(catalog, opts, ext) {
+  var transObj = translators[ext];
+  var re = opts[transObj.interpolateOptName] || transObj.re;
 
   return function(chunk, enc, callback) {
-    var template = chunk.toString();
-    var match, msgid, needle, translated;
+    var translated = transObj.fn(chunk.toString(), catalog, re);
 
-    translated = template;
-    match = re.exec(template);
-
-    while (match) {
-      needle = match[0];
-      msgid = match[1] || match[2];
-      translated = translated.replace(needle, catalog[msgid] || msgid);
-      match = re.exec(template);
-    }
-
-    var translatedChunk = translated
-      .replace(/(\n|")/g, escapeMatch);
-
-    var moduleString = 'module.exports = "' + translatedChunk + '";';
-
-    callback(null, moduleString);
+    callback(null, translated);
   };
 };
 
@@ -75,7 +69,8 @@ var getJSONCatalog = function(locale, localeDirs) {
 
 var acceptedExtensions = [
   '.handlebars',
-  '.hbs'
+  '.hbs',
+  '.js'
 ];
 
 var translatable = function(file) {
@@ -84,11 +79,15 @@ var translatable = function(file) {
 };
 
 var i18n = function(file, opts) {
+
   if(!translatable(file)) {
     return through2();
   }
+
+  var extName = path.extname(file);
   var catalog = getJSONCatalog(opts.locale, opts.localeDirs);
-  var translator = getTranslator(catalog, opts);
+  var translator = getTranslator(catalog, opts, extName);
+
   return through2(translator);
 };
 
@@ -96,11 +95,15 @@ i18n.fast = function(fastOpts) {
   var catalog = getJSONCatalog(fastOpts.locale, fastOpts.localeDirs);
 
   return function(file, opts) {
+
     if(!translatable(file)) {
       return through2();
     }
+
+    var extName = path.extname(file);
     var mergedOpts = _.extend({}, opts, fastOpts);
-    var translator = getTranslator(catalog, mergedOpts);
+    var translator = getTranslator(catalog, mergedOpts, extName);
+
     return through2(translator);
   };
 };

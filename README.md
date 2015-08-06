@@ -49,19 +49,22 @@ browserify('./source/file.js')
 The optimized task is much faster because it only parses `.po` files once,
 instead of once for every browserified module.
 
-To specify a custom interpolator do:
+To specify a custom interpolator for handlebars do:
 
 ```javascript
 var opts = {
   locale: 'en',
   localeDirs: ['./path/to/locale/dir/'],
-  interpolate: \{tr\s"([\s\S]+?)"}\g     // Custom interpolation RegExp
+  interpolateHbs: \{tr\s"([\s\S]+?)"}\g     // Custom interpolation RegExp
 };
 
 browserify('./source/file.js')
   .transform(i18n, opts)
   .bundle()
 ```
+
+A custom interpolator for javascript can be configured by using the
+`interpolateJs` option.
 
 ## Test
 

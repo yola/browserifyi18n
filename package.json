@@ -1,6 +1,6 @@
 {
   "name": "browserifyi18n",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Browserify transform for internationalizing tagged strings",
   "main": "index.js",
   "scripts": {
@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "gettext-parser": "^1.1.0",
+    "handlebars": "^3.0.3",
+    "hbsfy": "^2.2.1",
     "lodash": "^3.5.0",
     "through2": "^0.6.3"
   }
