@@ -1,6 +1,6 @@
 {
   "name": "browserifyi18n",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Browserify transform for internationalizing tagged strings",
   "main": "index.js",
   "scripts": {
