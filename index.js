@@ -5,6 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
 var gettextParser = require('gettext-parser');
+var handlebarsTranslator = require('./lib/handlebars-translator');
 var javascriptTranslator = require('./lib/javascript-translator');
 
 // Publish a Node.js require() handler for .handlebars and .hbs files
@@ -26,18 +27,7 @@ var getTranslator = function(catalog, opts, ext) {
   var re = opts.interpolate || /\{\{trans\s*(?:"([^"]+)"|\'([^\']+)\')\s*\}\}/g;
 
   return function(chunk, enc, callback) {
-    var template = chunk.toString();
-    var match, msgid, needle, translated;
-
-    translated = template;
-    match = re.exec(template);
-
-    while (match) {
-      needle = match[0];
-      msgid = match[1] || match[2];
-      translated = translated.replace(needle, catalog[msgid] || msgid);
-      match = re.exec(template);
-    }
+    var translated = handlebarsTranslator(chunk.toString(), catalog, re);
 
     callback(null, translated);
   };
