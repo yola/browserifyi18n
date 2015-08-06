@@ -7,7 +7,7 @@ var path = require('path');
 chai.should();
 process.chdir(__dirname);
 
-describe('browserify i18n', function() {
+describe('browserify i18n handlebars translation', function() {
   var options = {
     locale: 'es',
     localeDirs: ['./locale/'],
@@ -22,7 +22,7 @@ describe('browserify i18n', function() {
       .transform(i18n, options)
       .add('./fake-app.js');
 
-    it('bundles translated code handlebars files', function(done) {
+    it('translates tagged strings', function(done) {
       browserifyObj.bundle(function(err, src) {
         if(src) {
           src.toString().should.contain(expectedStringQue);
@@ -44,7 +44,7 @@ describe('browserify i18n', function() {
       .transform(i18n.fast(options))
       .add('./fake-app.js');
 
-    it('bundles translated handlebars files', function(done) {
+    it('translates tagged strings', function(done) {
       browserifyObj.bundle(function(err, src) {
         if(src) {
           src.toString().should.contain(expectedStringQue);
