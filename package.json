@@ -1,6 +1,6 @@
 {
   "name": "browserifyi18n",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Browserify transform for internationalizing tagged strings",
   "main": "index.js",
   "scripts": {
@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/yola/browserify-i18n",
   "devDependencies": {
-    "browserify": "^13.0.0",
-    "chai": "^3.5.0",
-    "mocha": "^2.2.1"
+    "browserify": "13.0.x",
+    "chai": "3.5.x",
+    "mocha": "2.2.x"
   },
   "dependencies": {
-    "gettext-parser": "^1.1.0",
-    "handlebars": "^4.0.5",
-    "hbsfy": "^2.2.1",
-    "lodash": "^3.10.1",
-    "through2": "^2.0.1"
+    "gettext-parser": "1.1.x",
+    "handlebars": "4.0.x",
+    "hbsfy": "2.2.x",
+    "lodash": "3.10.x",
+    "through2": "2.0.x"
   }
 }
